@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneWeekVaro</title>
+    <title>OneWeekVaro - Teams</title>
     <style>
         :root {
             --bg-dark: #121212;
@@ -11,6 +11,8 @@
             --accent: #4a80f0;
             --text-primary: #f0f0f0;
             --text-secondary: #b0b0b0;
+            --eliminated: #f44336;
+            --eliminated-bg: rgba(244, 67, 54, 0.1);
         }
         
         body {
@@ -31,6 +33,22 @@
         h1 {
             color: var(--accent);
             margin-bottom: 5px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+        
+        .event-title {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         
         .teams-container {
@@ -48,6 +66,30 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
             border-left: 3px solid var(--accent);
+            position: relative;
+        }
+        
+        .team-card.eliminated {
+            opacity: 0.7;
+            border-left-color: var(--eliminated);
+            background-color: var(--eliminated-bg);
+        }
+        
+        .team-card.eliminated .team-number {
+            background-color: var(--eliminated);
+        }
+        
+        .team-card.eliminated::after {
+            content: "AUSGESCHIEDEN";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--eliminated);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
         }
         
         .team-card:hover {
@@ -116,18 +158,27 @@
             flex-grow: 1;
         }
         
+        .eliminated .player-name {
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+        
         @media (max-width: 768px) {
             .teams-container {
                 grid-template-columns: 1fr;
+            }
+            
+            .event-title {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>OneWeekVaro</h1>
+        <div class="event-title">OneWeekVaro</div>
+        <h1>Minecraft Event Teams</h1>
         <p class="subtitle">Alle Teilnehmer und ihre Teamzugehörigkeiten</p>
-        <p class="subtitle">Hosted by Swacrew.net</p>
     </div>
     
     <div class="teams-container" id="teamsContainer">
@@ -197,11 +248,17 @@
             59: ["zMareke", "Limit_Los"]
         };
         
+        const eliminatedTeams = [3, 4]; // Teams die ausgeschieden sind
+        
         const container = document.getElementById('teamsContainer');
         
         for (const [teamNumber, players] of Object.entries(teams)) {
             const teamCard = document.createElement('div');
             teamCard.className = 'team-card';
+            
+            if (eliminatedTeams.includes(Number(teamNumber))) {
+                teamCard.classList.add('eliminated');
+            }
             
             const teamHeader = document.createElement('div');
             teamHeader.className = 'team-header';
@@ -223,6 +280,10 @@
             players.forEach(player => {
                 const playerElement = document.createElement('div');
                 playerElement.className = 'player';
+                
+                if (eliminatedTeams.includes(Number(teamNumber))) {
+                    playerElement.classList.add('eliminated');
+                }
                 
                 const playerIcon = document.createElement('div');
                 playerIcon.className = 'player-icon';
