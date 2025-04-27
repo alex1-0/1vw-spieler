@@ -51,15 +51,32 @@
             color: var(--text-secondary);
         }
         
-        .event-title {
-            font-size: 3rem;
-            background: linear-gradient(45deg, #ff8a00, #e52e71);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        .stats-header {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
+        
+        .stats-box {
+            background-color: var(--bg-card);
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .stats-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .alive { color: #4CAF50; }
+        .dead { color: #F44336; }
+        .teams-left { color: #FF9800; }
         
         .teams-container {
             display: grid;
@@ -74,7 +91,6 @@
             border-radius: 8px;
             padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
             border-left: 3px solid var(--accent);
             position: relative;
         }
@@ -90,16 +106,8 @@
             background-color: var(--solo-bg);
         }
         
-        .team-card.eliminated .team-number {
-            background-color: var(--eliminated);
-        }
-        
-        .team-card.solo-survivor .team-number {
-            background-color: var(--solo-survivor);
-        }
-        
         .team-card.eliminated::after {
-            content: "AUSGESCHIEDEN";
+            content: "ELIMINIERT";
             position: absolute;
             top: 10px;
             right: 10px;
@@ -112,7 +120,7 @@
         }
         
         .team-card.solo-survivor::after {
-            content: "SOLO-ÜBERLEBENDE(R)";
+            content: "SOLO ÜBERLEBEND";
             position: absolute;
             top: 10px;
             right: 10px;
@@ -122,10 +130,6 @@
             border-radius: 4px;
             font-size: 0.8rem;
             font-weight: bold;
-        }
-        
-        .team-card:hover {
-            transform: translateY(-5px);
         }
         
         .team-header {
@@ -166,12 +170,7 @@
             padding: 8px 10px;
             background-color: rgba(255, 255, 255, 0.05);
             border-radius: 5px;
-            transition: background-color 0.2s;
             justify-content: space-between;
-        }
-        
-        .player:hover {
-            background-color: rgba(255, 255, 255, 0.1);
         }
         
         .player.eliminated {
@@ -211,47 +210,22 @@
             border-radius: 10px;
             font-size: 0.8rem;
             font-weight: bold;
-            margin-left: 10px;
         }
-        
-        .solo-survivors-container {
+
+        .top-killers-container {
             max-width: 1400px;
-            margin: 40px auto;
-            background-color: rgba(255, 152, 0, 0.1);
+            margin: 0 auto 30px;
             padding: 20px;
+            background-color: rgba(30, 30, 30, 0.8);
             border-radius: 8px;
-            border-left: 3px solid var(--solo-survivor);
         }
-        
-        .solo-survivors-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-        }
-        
-        .solo-survivor-card {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 5px;
-        }
-        
-        .stats-container {
-            max-width: 1400px;
-            margin: 40px auto;
-            background-color: rgba(74, 128, 240, 0.1);
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 3px solid var(--accent);
-        }
-        
-        .top-killers {
+
+        .top-killers-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
         }
-        
+
         .killer-card {
             display: flex;
             align-items: center;
@@ -261,42 +235,54 @@
         }
         
         @media (max-width: 768px) {
-            .teams-container, .solo-survivors-list, .top-killers {
+            .teams-container {
                 grid-template-columns: 1fr;
             }
             
-            .event-title {
-                font-size: 2rem;
+            .stats-header {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .stats-box {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="event-title">OneWeekVaro</div>
-        <h1>Teams & Statistiken</h1>
-        <p class="subtitle">Teamzugehörigkeiten und Kill-Statistiken</p>
+        <h1>OneWeekVaro</h1>
+        <p class="subtitle">Teams und Statistiken</p>
     </div>
     
-    <div class="stats-container">
-        <h2>Top Killer</h2>
-        <div class="top-killers" id="topKillers">
-            <!-- Top Killer werden hier eingefügt -->
+    <div class="stats-header">
+        <div class="stats-box">
+            <div>Spieler am Leben</div>
+            <div class="stats-value alive" id="aliveCount">0</div>
+        </div>
+        <div class="stats-box">
+            <div>Teams übrig</div>
+            <div class="stats-value teams-left" id="teamsLeft">0</div>
+        </div>
+        <div class="stats-box">
+            <div>Ausgeschieden</div>
+            <div class="stats-value dead" id="deadCount">0</div>
+        </div>
+    </div>
+
+    <div class="top-killers-container">
+        <h2>Top 10 Killer</h2>
+        <div class="top-killers-grid" id="topKillers">
+            <!-- Wird automatisch befüllt -->
         </div>
     </div>
     
-    <div class="teams-container" id="teamsContainer">
-        <!-- Teams werden hier eingefügt -->
-    </div>
-    
-    <div id="soloSurvivorsContainer" class="solo-survivors-container" style="display: none;">
-        <h2>Solo-Überlebende</h2>
-        <div class="solo-survivors-list" id="soloSurvivorsList">
-            <!-- Solo-Überlebende werden hier eingefügt -->
-        </div>
-    </div>
-    
+    <div class="teams-container" id="teamsContainer"></div>
+
     <script>
+        // Team-Definitionen
         const teams = {
             1: ["zjonqs", "Jonas16v"],
             2: ["vileGid", "Armene"],
@@ -358,122 +344,153 @@
             58: ["OhitsEstelle", "mavegoat"],
             59: ["zMareke", "Limit_Los"]
         };
-        
-        // Spieler die ausgeschieden sind (Teamnummer: [Spielerindex])
-        const eliminatedPlayers = {
-            1: [0, 1],     // zjonqs, Jonas16v (beide tot)
-            4: [1],        // MrChocolxte tot
-            6: [0, 1],     // Tim_Kreativbro, PTC_YT (beide tot)
-            7: [0, 1],     // Finnsel_Bimmsel, FynnK14 (beide tot)
-            8: [1],        // TypischTobi653 tot
-            10: [1],       // yEmpire tot
-            11: [0, 1],    // Ringraid_, Zidrohn (beide tot)
-            13: [0, 1],    // Nikk54, SuperPiet7 (beide tot)
-            17: [0, 1],    // zMomentum, EisteeMan (beide tot)
-            24: [1],       // Loxxgamer tot
-            27: [0, 1],    // MegaMeteor87, MegaMeteor88 (beide tot)
-            28: [0, 1],    // MitDerNacht, yujiSW (beide tot)
-            32: [1],       // einJonas65 tot
-            34: [0],       // Nusse2011 tot
-            35: [0, 1],    // EnteOnCrack, Alpha_demil_47 (beide tot)
-            37: [0, 1],    // kkeqqa, JzSnoxy (beide tot)
-            38: [1],       // Jasko5 tot
-            40: [1],       // OscarrinoTV tot
-            46: [0, 1],    // 4357k, Nintendo97533 (beide tot)
-            47: [1],       // Jan0schi tot
-            50: [0, 1],    // yukiime, Jasko5_Twitchtv (beide tot)
-            51: [0],       // zphynix tot
-            52: [1],       // bignose_00 tot
-            53: [0, 1],    // legiSimon, CorgiWelpe (beide tot)
-            54: [0, 1],    // xJuro, HamudiIdumah (beide tot)
-            55: [0],       // jxgen tot
-            56: [1],       // Osckar tot
-            57: [1],       // Nineon1703 tot
-            58: [0, 1]     // OhitsEstelle, mavegoat (beide tot)
-        };
-        
-        // Kill-Statistiken (wird morgen mit der Kill-Liste aktualisiert)
-        const killStats = {
-            "OhitsDevoo": 1,
-            "Alpha_demil_47": 2,
-            "HamudiIdumah": 1,
-            "Jasko5": 3,
-            "EisteeMan": 2,
-            "bignose_00": 1,
-            "Sakurayy": 1,
-            "Clayten": 1,
-            "hotzen": 2,
-            "Loxxgamer": 1,
-            "MegaMeteor87": 1,
-            "InvormativTV": 1,
-            "vileGid": 2,
-            "Schmiti_": 1,
-            "mavegoat": 1,
-            "Osckar": 2,
-            "MegaMeteor89": 4,
-            "MitDerNacht": 2,
-            "tracksuitz": 1,
-            "0boete": 1,
-            "zjonqs": 2,
-            "EinM4nu": 1
-        };
-        
-        const container = document.getElementById('teamsContainer');
-        const soloContainer = document.getElementById('soloSurvivorsContainer');
-        const soloList = document.getElementById('soloSurvivorsList');
-        const topKillersContainer = document.getElementById('topKillers');
-        
-        let soloSurvivors = [];
-        
-        // Top Killer anzeigen
-        function displayTopKillers() {
-            // Kill-Statistiken in ein Array umwandeln und sortieren
-            const killersArray = Object.entries(killStats)
-                .sort((a, b) => b[1] - a[1]);
-            
-            killersArray.forEach(([killer, kills]) => {
-                const killerCard = document.createElement('div');
-                killerCard.className = 'killer-card';
-                
-                const killerIcon = document.createElement('div');
-                killerIcon.className = 'player-icon';
-                killerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${killer}/32')`;
-                
-                const killerInfo = document.createElement('div');
-                killerInfo.style.marginLeft = '10px';
-                killerInfo.innerHTML = `<strong>${killer}</strong><br>${kills} Kills`;
-                
-                killerCard.appendChild(killerIcon);
-                killerCard.appendChild(killerInfo);
-                topKillersContainer.appendChild(killerCard);
+
+        // Server-Logs mit Todesmeldungen
+        const deathLogs = [
+            "[18:17:21] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: TypischTobi653 was slain by OhitsDevoo",
+            "[18:17:46] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: OscarrinoTV was slain by Alpha_demil_47",
+            "[18:18:09] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: CorgiWelpe was slain by HamudiIdumah",
+            "[18:18:14] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: zphynix died",
+            "[18:18:17] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: F1nnk14 was doomed to fall by Jasko5",
+            "[18:18:29] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Finnsel_Bimmsel was slain by Jasko5",
+            "[18:18:48] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: 4357k was slain by EisteeMan",
+            "[18:19:17] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Nintendo97533 was slain by EisteeMan",
+            "[18:19:28] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Nineon1703 was slain by bignose_00",
+            "[18:19:31] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: EnteOnCrack was slain by Jasko5",
+            "[18:19:31] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Jasko5 was slain by Alpha_demil_47",
+            "[18:19:47] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: zMomentum was slain by Sakurayy",
+            "[18:19:59] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: EisteeMan was slain by Clayten",
+            "[18:22:33] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: kkeqqa hit the ground too hard while trying to escape Jasko5_Twitchtv",
+            "[18:22:34] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: yukiime was slain by hotzen",
+            "[18:22:36] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Jasko5_Twitchtv was slain by hotzen",
+            "[18:25:35] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: MegaMeteor88 was slain by Loxxgamer",
+            "[18:25:37] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Loxxgamer was slain by MegaMeteor87",
+            "[18:26:02] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: MegaMeteor87 was slain by InvormativTV",
+            "[18:34:15] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: KytenQx was slain by vileGid",
+            "[18:36:32] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: yEmpire fell from a high place",
+            "[18:38:55] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: jxgen was shot by Skeleton",
+            "[18:42:43] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Zidrohn was slain by zjonqs",
+            "[18:45:30] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Nusse2011 was slain by Schmiti_",
+            "[18:45:51] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: PluureX was slain by vileGid",
+            "[18:53:54] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: JzSnoxy fell from a high place",
+            "[19:03:39] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Jan0schi was slain by mavegoat",
+            "[19:14:07] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: MrChocolxte tried to swim in lava to escape Armene",
+            "[19:33:57] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: OhitsEstelle was slain by Osckar",
+            "[19:35:05] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: mavegoat was slain by Osckar",
+            "[19:51:23] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: legiSimon was slain by MegaMeteor89",
+            "[19:54:44] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: PTC_YT was slain by OhitsDevoo",
+            "[19:55:15] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Nikk54 was slain by MitDerNacht",
+            "[19:58:50] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Tim_Kreativbro was slain by MegaMeteor89",
+            "[20:02:45] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: HamudiIdumah was slain by tracksuitz",
+            "[20:03:50] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Ringraid_ was doomed to fall by MitDerNacht",
+            "[20:09:50] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: xJuro drowned while trying to escape 0boete",
+            "[20:27:22] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: MitDerNacht was burned to a crisp while fighting Osckar",
+            "[20:27:30] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: yujiSW tried to swim in lava to escape UsingDawn33",
+            "[20:31:00] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: SuperPiet7 was doomed to fall by Spider",
+            "[20:33:15] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Osckar was burned to a crisp while fighting EinM4nu",
+            "[20:38:49] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Jonas16v was slain by MegaMeteor89",
+            "[20:42:51] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: einJonas65 was slain by zjonqs",
+            "[20:43:10] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: zjonqs was slain by MegaMeteor89"
+        ];
+
+        // Initialisierung
+        let eliminatedPlayers = {};
+        let killStats = {};
+
+        // Finde Team und Index eines Spielers
+        function findPlayer(playerName) {
+            for (const [teamNum, players] of Object.entries(teams)) {
+                const index = players.indexOf(playerName);
+                if (index !== -1) {
+                    return { team: parseInt(teamNum), index };
+                }
+            }
+            return null;
+        }
+
+        // Verarbeite die Todeslogs
+        function processDeathLogs() {
+            deathLogs.forEach(log => {
+                const deathMessage = log.match(/\[DEATH\] Message: (.+)/)[1];
+                let deadPlayer, killer;
+
+                // Extrahiere Toten und Killer basierend auf Todesart
+                if (deathMessage.includes("was slain by")) {
+                    [deadPlayer, killer] = deathMessage.split(" was slain by ");
+                } else if (deathMessage.includes("was shot by")) {
+                    [deadPlayer, killer] = deathMessage.split(" was shot by ");
+                } else if (deathMessage.includes("was doomed to fall by")) {
+                    [deadPlayer, killer] = deathMessage.split(" was doomed to fall by ");
+                } else if (deathMessage.includes("died")) {
+                    deadPlayer = deathMessage.split(" died")[0];
+                } else if (deathMessage.includes("hit the ground too hard while trying to escape")) {
+                    [deadPlayer, killer] = deathMessage.split(" hit the ground too hard while trying to escape ");
+                } else if (deathMessage.includes("tried to swim in lava to escape")) {
+                    [deadPlayer, killer] = deathMessage.split(" tried to swim in lava to escape ");
+                } else if (deathMessage.includes("fell from a high place")) {
+                    deadPlayer = deathMessage.split(" fell from a high place")[0];
+                } else if (deathMessage.includes("was burned to a crisp while fighting")) {
+                    [deadPlayer, killer] = deathMessage.split(" was burned to a crisp while fighting ");
+                } else if (deathMessage.includes("drowned while trying to escape")) {
+                    [deadPlayer, killer] = deathMessage.split(" drowned while trying to escape ");
+                }
+
+                // Markiere Spieler als tot
+                if (deadPlayer) {
+                    const playerInfo = findPlayer(deadPlayer);
+                    if (playerInfo) {
+                        if (!eliminatedPlayers[playerInfo.team]) {
+                            eliminatedPlayers[playerInfo.team] = [];
+                        }
+                        if (!eliminatedPlayers[playerInfo.team].includes(playerInfo.index)) {
+                            eliminatedPlayers[playerInfo.team].push(playerInfo.index);
+                        }
+                    }
+                }
+
+                // Zähle Kill
+                if (killer) {
+                    killStats[killer] = (killStats[killer] || 0) + 1;
+                }
             });
         }
-        
-        // Teams anzeigen
-        function displayTeams() {
+
+        // Berechne Statistiken
+        function calculateStats() {
+            const totalPlayers = Object.values(teams).reduce((sum, team) => sum + team.length, 0);
+            const deadCount = Object.values(eliminatedPlayers).reduce((sum, deadIndices) => sum + deadIndices.length, 0);
+            const aliveCount = totalPlayers - deadCount;
+            
+            // Aktive Teams zählen
+            const activeTeams = Object.entries(teams).reduce((count, [teamNum, players]) => {
+                const deadPlayers = eliminatedPlayers[teamNum] ? eliminatedPlayers[teamNum].length : 0;
+                return deadPlayers < players.length ? count + 1 : count;
+            }, 0);
+
+            return { totalPlayers, aliveCount, deadCount, activeTeams };
+        }
+
+        // Zeige Teams an
+        function renderTeams() {
+            const container = document.getElementById('teamsContainer');
+            container.innerHTML = '';
+            
+            const stats = calculateStats();
+            document.getElementById('aliveCount').textContent = stats.aliveCount;
+            document.getElementById('deadCount').textContent = stats.deadCount;
+            document.getElementById('teamsLeft').textContent = stats.activeTeams;
+
             for (const [teamNumber, players] of Object.entries(teams)) {
-                const teamNum = Number(teamNumber);
-                const isEliminatedTeam = eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].length === players.length;
-                const isSoloSurvivor = eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].length === players.length - 1;
-                
+                const teamNum = parseInt(teamNumber);
+                const deadPlayers = eliminatedPlayers[teamNum] || [];
+                const isEliminated = deadPlayers.length === players.length;
+                const isSoloSurvivor = deadPlayers.length === players.length - 1;
+
                 const teamCard = document.createElement('div');
                 teamCard.className = 'team-card';
-                
-                if (isEliminatedTeam) {
-                    teamCard.classList.add('eliminated');
-                } else if (isSoloSurvivor) {
-                    teamCard.classList.add('solo-survivor');
-                    
-                    // Finde den überlebenden Spieler
-                    const survivorIndex = players.findIndex((_, index) => !eliminatedPlayers[teamNum].includes(index));
-                    const survivor = players[survivorIndex];
-                    
-                    soloSurvivors.push({
-                        team: teamNum,
-                        name: survivor
-                    });
-                }
-                
+                if (isEliminated) teamCard.classList.add('eliminated');
+                if (isSoloSurvivor) teamCard.classList.add('solo-survivor');
+
                 const teamHeader = document.createElement('div');
                 teamHeader.className = 'team-header';
                 
@@ -494,8 +511,7 @@
                 players.forEach((player, index) => {
                     const playerElement = document.createElement('div');
                     playerElement.className = 'player';
-                    
-                    if (eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].includes(index)) {
+                    if (deadPlayers.includes(index)) {
                         playerElement.classList.add('eliminated');
                     }
                     
@@ -528,62 +544,36 @@
                 teamCard.appendChild(playersList);
                 container.appendChild(teamCard);
             }
-            
-            // Zeige Solo-Überlebende an, falls vorhanden
-            if (soloSurvivors.length > 0) {
-                soloContainer.style.display = 'block';
-                
-                soloSurvivors.forEach(survivor => {
-                    const survivorCard = document.createElement('div');
-                    survivorCard.className = 'solo-survivor-card';
-                    
-                    const playerIcon = document.createElement('div');
-                    playerIcon.className = 'player-icon';
-                    playerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${survivor.name}/32')`;
-                    
-                    const playerInfo = document.createElement('div');
-                    playerInfo.style.marginLeft = '10px';
-                    playerInfo.innerHTML = `<strong>${survivor.name}</strong><br>Team ${survivor.team}`;
-                    
-                    survivorCard.appendChild(playerIcon);
-                    survivorCard.appendChild(playerInfo);
-                    soloList.appendChild(survivorCard);
-                });
-            }
         }
-        
-        // Initialisierung
-        displayTopKillers();
-        displayTeams();
-        
-        // Funktion zum Aktualisieren der Kill-Statistiken
-        function updateKillStats(newKills) {
-            // Hier kannst du morgen die Kill-Liste verarbeiten
-            // newKills sollte ein Objekt sein mit { killer: anzahl }
-            // z.B.: { "OhitsDevoo": 2, "Jasko5": 1 }
+
+        function renderTopKillers() {
+            const killers = Object.entries(killStats)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10); // Top 10
             
-            // Für jetzt: Logge die neuen Kills
-            console.log("Neue Kill-Statistiken:", newKills);
-            
-            // Aktualisiere die killStats
-            Object.assign(killStats, newKills);
-            
-            // Lösche die alten Anzeigen
+            const container = document.getElementById('topKillers');
             container.innerHTML = '';
-            topKillersContainer.innerHTML = '';
-            soloList.innerHTML = '';
-            soloSurvivors = [];
             
-            // Zeige alles neu an
-            displayTopKillers();
-            displayTeams();
+            killers.forEach(([player, kills]) => {
+                const card = document.createElement('div');
+                card.className = 'killer-card';
+                
+                card.innerHTML = `
+                    <div class="player-icon" style="background-image: url('https://mc-heads.net/avatar/${player}/32')"></div>
+                    <div style="margin-left: 10px">
+                        <strong>${player}</strong><br>
+                        ${kills} Kills
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
         }
-        
-        // Beispiel: So kannst du morgen die Kill-Statistiken aktualisieren
-        // updateKillStats({
-        //     "NeuerKiller": 3,
-        //     "OhitsDevoo": 2
-        // });
+
+        // Initialisierung beim Laden
+        processDeathLogs();
+        renderTopKillers();
+        renderTeams();
     </script>
 </body>
 </html>
