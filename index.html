@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneWeekVaro - Teams</title>
+    <title>OneWeekVaro - Teams & Stats</title>
     <style>
         :root {
             --bg-dark: #121212;
@@ -15,6 +15,7 @@
             --eliminated-bg: rgba(244, 67, 54, 0.1);
             --solo-survivor: #ff9800;
             --solo-bg: rgba(255, 152, 0, 0.1);
+            --kill-count: #4caf50;
         }
         
         body {
@@ -166,6 +167,7 @@
             background-color: rgba(255, 255, 255, 0.05);
             border-radius: 5px;
             transition: background-color 0.2s;
+            justify-content: space-between;
         }
         
         .player:hover {
@@ -180,6 +182,12 @@
             text-decoration: line-through;
         }
         
+        .player-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+        
         .player-icon {
             width: 32px;
             height: 32px;
@@ -189,12 +197,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-image: url('https://mc-heads.net/avatar/');
             background-size: cover;
         }
         
         .player-name {
             flex-grow: 1;
+        }
+        
+        .kill-count {
+            background-color: var(--kill-count);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
         }
         
         .solo-survivors-container {
@@ -220,8 +237,31 @@
             border-radius: 5px;
         }
         
+        .stats-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            background-color: rgba(74, 128, 240, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .top-killers {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .killer-card {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
         @media (max-width: 768px) {
-            .teams-container, .solo-survivors-list {
+            .teams-container, .solo-survivors-list, .top-killers {
                 grid-template-columns: 1fr;
             }
             
@@ -234,8 +274,15 @@
 <body>
     <div class="header">
         <div class="event-title">OneWeekVaro</div>
-        <h1>Minecraft Event Teams</h1>
-        <p class="subtitle">Alle Teilnehmer und ihre Teamzugehörigkeiten</p>
+        <h1>Teams & Statistiken</h1>
+        <p class="subtitle">Teamzugehörigkeiten und Kill-Statistiken</p>
+    </div>
+    
+    <div class="stats-container">
+        <h2>Top Killer</h2>
+        <div class="top-killers" id="topKillers">
+            <!-- Top Killer werden hier eingefügt -->
+        </div>
     </div>
     
     <div class="teams-container" id="teamsContainer">
@@ -315,54 +362,25 @@
         // Spieler die ausgeschieden sind (Teamnummer: [Spielerindex])
         const eliminatedPlayers = {
             1: [0, 1],     // zjonqs, Jonas16v (beide tot)
-            2: [],         // vileGid, Armene (beide lebend)
-            3: [],         // OhitsDevoo, hotzen (beide lebend)
             4: [1],        // MrChocolxte tot
-            5: [],         // 7G0AT, Schmiti_ (beide lebend)
             6: [0, 1],     // Tim_Kreativbro, PTC_YT (beide tot)
             7: [0, 1],     // Finnsel_Bimmsel, FynnK14 (beide tot)
             8: [1],        // TypischTobi653 tot
-            9: [],         // PhilTimeTV, __GodWalk__ (beide lebend)
             10: [1],       // yEmpire tot
             11: [0, 1],    // Ringraid_, Zidrohn (beide tot)
-            12: [],        // zItacheyy, FrozenKnightHD (beide lebend)
             13: [0, 1],    // Nikk54, SuperPiet7 (beide tot)
-            14: [],        // DerDerNichtsKann, Dreix31 (beide lebend)
-            15: [],        // Spidercrafti, FelixT2008 (beide lebend)
-            16: [],        // VaderKido, Fylumenius (beide lebend)
             17: [0, 1],    // zMomentum, EisteeMan (beide tot)
-            18: [],        // Ineedcutegirls, Ineedgoodgirls (beide lebend)
-            19: [],        // xOrdentlich, AlexOAT (beide lebend)
-            20: [],        // 0boete, tracksuitz (beide lebend)
-            21: [],        // SLManu, Draco_2010 (beide lebend)
-            22: [],        // LiveLucYT, jannick421 (beide lebend)
-            23: [],        // Too0God, PamerDKing (beide lebend)
             24: [1],       // Loxxgamer tot
-            25: [],        // Valle0311, MikaDKing (beide lebend)
-            26: [],        // Naayrii, MCKrediii (beide lebend)
             27: [0, 1],    // MegaMeteor87, MegaMeteor88 (beide tot)
             28: [0, 1],    // MitDerNacht, yujiSW (beide tot)
-            29: [],        // deadston3, EinM4nu (beide lebend)
-            30: [],        // hkbuddyy, MRANDRU12 (beide lebend)
-            31: [],        // Tempest1204, Rage064 (beide lebend)
             32: [1],       // einJonas65 tot
-            33: [],        // DieEnte1455, Benowitch (beide lebend)
             34: [0],       // Nusse2011 tot
             35: [0, 1],    // EnteOnCrack, Alpha_demil_47 (beide tot)
-            36: [],        // Somberlyy, nurnoco (beide lebend)
             37: [0, 1],    // kkeqqa, JzSnoxy (beide tot)
             38: [1],       // Jasko5 tot
-            39: [],        // UncleCreepin, CuzImCreephim (beide lebend)
             40: [1],       // OscarrinoTV tot
-            41: [],        // Hushtrail, KaiserOxy66 (beide lebend)
-            42: [],        // Freddy_Kohlbein, Brigitte420 (beide lebend)
-            43: [],        // Lxk4z, Snowfeather25 (beide lebend)
-            44: [],        // Zane_69, StarkillerBW (beide lebend)
-            45: [],        // DestenyLP, CxEy7456 (beide lebend)
             46: [0, 1],    // 4357k, Nintendo97533 (beide tot)
             47: [1],       // Jan0schi tot
-            48: [],        // Aka_220, Rayan_Bgrr80x (beide lebend)
-            49: [],        // Clayten, Sakurayy (beide lebend)
             50: [0, 1],    // yukiime, Jasko5_Twitchtv (beide tot)
             51: [0],       // zphynix tot
             52: [1],       // bignose_00 tot
@@ -371,103 +389,201 @@
             55: [0],       // jxgen tot
             56: [1],       // Osckar tot
             57: [1],       // Nineon1703 tot
-            58: [0, 1],    // OhitsEstelle, mavegoat (beide tot)
-            59: []         // zMareke, Limit_Los (beide lebend)
+            58: [0, 1]     // OhitsEstelle, mavegoat (beide tot)
+        };
+        
+        // Kill-Statistiken (wird morgen mit der Kill-Liste aktualisiert)
+        const killStats = {
+            "OhitsDevoo": 1,
+            "Alpha_demil_47": 2,
+            "HamudiIdumah": 1,
+            "Jasko5": 3,
+            "EisteeMan": 2,
+            "bignose_00": 1,
+            "Sakurayy": 1,
+            "Clayten": 1,
+            "hotzen": 2,
+            "Loxxgamer": 1,
+            "MegaMeteor87": 1,
+            "InvormativTV": 1,
+            "vileGid": 2,
+            "Schmiti_": 1,
+            "mavegoat": 1,
+            "Osckar": 2,
+            "MegaMeteor89": 4,
+            "MitDerNacht": 2,
+            "tracksuitz": 1,
+            "0boete": 1,
+            "zjonqs": 2,
+            "EinM4nu": 1
         };
         
         const container = document.getElementById('teamsContainer');
         const soloContainer = document.getElementById('soloSurvivorsContainer');
         const soloList = document.getElementById('soloSurvivorsList');
+        const topKillersContainer = document.getElementById('topKillers');
         
         let soloSurvivors = [];
         
-        for (const [teamNumber, players] of Object.entries(teams)) {
-            const teamNum = Number(teamNumber);
-            const isEliminatedTeam = eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].length === players.length;
-            const isSoloSurvivor = eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].length === players.length - 1;
+        // Top Killer anzeigen
+        function displayTopKillers() {
+            // Kill-Statistiken in ein Array umwandeln und sortieren
+            const killersArray = Object.entries(killStats)
+                .sort((a, b) => b[1] - a[1]);
             
-            const teamCard = document.createElement('div');
-            teamCard.className = 'team-card';
-            
-            if (isEliminatedTeam) {
-                teamCard.classList.add('eliminated');
-            } else if (isSoloSurvivor) {
-                teamCard.classList.add('solo-survivor');
+            killersArray.forEach(([killer, kills]) => {
+                const killerCard = document.createElement('div');
+                killerCard.className = 'killer-card';
                 
-                // Finde den überlebenden Spieler
-                const survivorIndex = players.findIndex((_, index) => !eliminatedPlayers[teamNum].includes(index));
-                const survivor = players[survivorIndex];
+                const killerIcon = document.createElement('div');
+                killerIcon.className = 'player-icon';
+                killerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${killer}/32')`;
                 
-                soloSurvivors.push({
-                    team: teamNum,
-                    name: survivor
-                });
-            }
-            
-            const teamHeader = document.createElement('div');
-            teamHeader.className = 'team-header';
-            
-            const teamNumberElement = document.createElement('div');
-            teamNumberElement.className = 'team-number';
-            teamNumberElement.textContent = teamNumber;
-            
-            const teamTitle = document.createElement('div');
-            teamTitle.className = 'team-title';
-            teamTitle.textContent = `Team ${teamNumber}`;
-            
-            teamHeader.appendChild(teamNumberElement);
-            teamHeader.appendChild(teamTitle);
-            
-            const playersList = document.createElement('div');
-            playersList.className = 'players-list';
-            
-            players.forEach((player, index) => {
-                const playerElement = document.createElement('div');
-                playerElement.className = 'player';
+                const killerInfo = document.createElement('div');
+                killerInfo.style.marginLeft = '10px';
+                killerInfo.innerHTML = `<strong>${killer}</strong><br>${kills} Kills`;
                 
-                if (eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].includes(index)) {
-                    playerElement.classList.add('eliminated');
-                }
-                
-                const playerIcon = document.createElement('div');
-                playerIcon.className = 'player-icon';
-                playerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${player}/32')`;
-                
-                const playerName = document.createElement('div');
-                playerName.className = 'player-name';
-                playerName.textContent = player;
-                
-                playerElement.appendChild(playerIcon);
-                playerElement.appendChild(playerName);
-                playersList.appendChild(playerElement);
+                killerCard.appendChild(killerIcon);
+                killerCard.appendChild(killerInfo);
+                topKillersContainer.appendChild(killerCard);
             });
-            
-            teamCard.appendChild(teamHeader);
-            teamCard.appendChild(playersList);
-            container.appendChild(teamCard);
         }
         
-        // Zeige Solo-Überlebende an, falls vorhanden
-        if (soloSurvivors.length > 0) {
-            soloContainer.style.display = 'block';
+        // Teams anzeigen
+        function displayTeams() {
+            for (const [teamNumber, players] of Object.entries(teams)) {
+                const teamNum = Number(teamNumber);
+                const isEliminatedTeam = eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].length === players.length;
+                const isSoloSurvivor = eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].length === players.length - 1;
+                
+                const teamCard = document.createElement('div');
+                teamCard.className = 'team-card';
+                
+                if (isEliminatedTeam) {
+                    teamCard.classList.add('eliminated');
+                } else if (isSoloSurvivor) {
+                    teamCard.classList.add('solo-survivor');
+                    
+                    // Finde den überlebenden Spieler
+                    const survivorIndex = players.findIndex((_, index) => !eliminatedPlayers[teamNum].includes(index));
+                    const survivor = players[survivorIndex];
+                    
+                    soloSurvivors.push({
+                        team: teamNum,
+                        name: survivor
+                    });
+                }
+                
+                const teamHeader = document.createElement('div');
+                teamHeader.className = 'team-header';
+                
+                const teamNumberElement = document.createElement('div');
+                teamNumberElement.className = 'team-number';
+                teamNumberElement.textContent = teamNumber;
+                
+                const teamTitle = document.createElement('div');
+                teamTitle.className = 'team-title';
+                teamTitle.textContent = `Team ${teamNumber}`;
+                
+                teamHeader.appendChild(teamNumberElement);
+                teamHeader.appendChild(teamTitle);
+                
+                const playersList = document.createElement('div');
+                playersList.className = 'players-list';
+                
+                players.forEach((player, index) => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player';
+                    
+                    if (eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].includes(index)) {
+                        playerElement.classList.add('eliminated');
+                    }
+                    
+                    const playerInfo = document.createElement('div');
+                    playerInfo.className = 'player-info';
+                    
+                    const playerIcon = document.createElement('div');
+                    playerIcon.className = 'player-icon';
+                    playerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${player}/32')`;
+                    
+                    const playerName = document.createElement('div');
+                    playerName.className = 'player-name';
+                    playerName.textContent = player;
+                    
+                    playerInfo.appendChild(playerIcon);
+                    playerInfo.appendChild(playerName);
+                    
+                    const killsElement = document.createElement('div');
+                    if (killStats[player]) {
+                        killsElement.className = 'kill-count';
+                        killsElement.textContent = killStats[player];
+                    }
+                    
+                    playerElement.appendChild(playerInfo);
+                    playerElement.appendChild(killsElement);
+                    playersList.appendChild(playerElement);
+                });
+                
+                teamCard.appendChild(teamHeader);
+                teamCard.appendChild(playersList);
+                container.appendChild(teamCard);
+            }
             
-            soloSurvivors.forEach(survivor => {
-                const survivorCard = document.createElement('div');
-                survivorCard.className = 'solo-survivor-card';
+            // Zeige Solo-Überlebende an, falls vorhanden
+            if (soloSurvivors.length > 0) {
+                soloContainer.style.display = 'block';
                 
-                const playerIcon = document.createElement('div');
-                playerIcon.className = 'player-icon';
-                playerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${survivor.name}/32')`;
-                
-                const playerInfo = document.createElement('div');
-                playerInfo.style.marginLeft = '10px';
-                playerInfo.innerHTML = `<strong>${survivor.name}</strong><br>Team ${survivor.team}`;
-                
-                survivorCard.appendChild(playerIcon);
-                survivorCard.appendChild(playerInfo);
-                soloList.appendChild(survivorCard);
-            });
+                soloSurvivors.forEach(survivor => {
+                    const survivorCard = document.createElement('div');
+                    survivorCard.className = 'solo-survivor-card';
+                    
+                    const playerIcon = document.createElement('div');
+                    playerIcon.className = 'player-icon';
+                    playerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${survivor.name}/32')`;
+                    
+                    const playerInfo = document.createElement('div');
+                    playerInfo.style.marginLeft = '10px';
+                    playerInfo.innerHTML = `<strong>${survivor.name}</strong><br>Team ${survivor.team}`;
+                    
+                    survivorCard.appendChild(playerIcon);
+                    survivorCard.appendChild(playerInfo);
+                    soloList.appendChild(survivorCard);
+                });
+            }
         }
+        
+        // Initialisierung
+        displayTopKillers();
+        displayTeams();
+        
+        // Funktion zum Aktualisieren der Kill-Statistiken
+        function updateKillStats(newKills) {
+            // Hier kannst du morgen die Kill-Liste verarbeiten
+            // newKills sollte ein Objekt sein mit { killer: anzahl }
+            // z.B.: { "OhitsDevoo": 2, "Jasko5": 1 }
+            
+            // Für jetzt: Logge die neuen Kills
+            console.log("Neue Kill-Statistiken:", newKills);
+            
+            // Aktualisiere die killStats
+            Object.assign(killStats, newKills);
+            
+            // Lösche die alten Anzeigen
+            container.innerHTML = '';
+            topKillersContainer.innerHTML = '';
+            soloList.innerHTML = '';
+            soloSurvivors = [];
+            
+            // Zeige alles neu an
+            displayTopKillers();
+            displayTeams();
+        }
+        
+        // Beispiel: So kannst du morgen die Kill-Statistiken aktualisieren
+        // updateKillStats({
+        //     "NeuerKiller": 3,
+        //     "OhitsDevoo": 2
+        // });
     </script>
 </body>
 </html>
