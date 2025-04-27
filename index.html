@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Event Teams</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --accent: #4a80f0;
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0b0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 15px;
+        }
+        
+        h1 {
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+        
+        .teams-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .team-card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .team-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .team-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .team-number {
+            background-color: var(--accent);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .team-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .players-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .player {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        
+        .player:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .player-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #333;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url('https://mc-heads.net/avatar/');
+            background-size: cover;
+        }
+        
+        .player-name {
+            flex-grow: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .teams-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Minecraft Event Teams</h1>
+        <p class="subtitle">Alle Teilnehmer und ihre Teamzugehörigkeiten</p>
+    </div>
+    
+    <div class="teams-container" id="teamsContainer">
+        <!-- Teams werden hier eingefügt -->
+    </div>
+    
+    <script>
+        const teams = {
+            1: ["zjonqs", "Jonas16v"],
+            2: ["vileGid", "Armene"],
+            3: ["OhitsDevoo", "hotzen"],
+            4: ["Flo_0608", "MrChocolxte"],
+            5: ["7G0AT", "Schmiti_"],
+            6: ["Tim_Kreativbro", "PTC_YT"],
+            7: ["Finnsel_Bimmsel", "FynnK14"],
+            8: ["KytenQx", "TypischTobi653"],
+            9: ["PhilTimeTV", "__GodWalk__"],
+            10: ["Omega_King21", "yEmpire"],
+            11: ["Ringraid_", "Zidrohn"],
+            12: ["zItacheyy", "FrozenKnightHD"],
+            13: ["Nikk54", "SuperPiet7"],
+            14: ["DerDerNichtsKann", "Dreix31"],
+            15: ["Spidercrafti", "FelixT2008"],
+            16: ["VaderKido", "Fylumenius"],
+            17: ["zMomentum", "EisteeMan"],
+            18: ["Ineedcutegirls", "Ineedgoodgirls"],
+            19: ["xOrdentlich", "AlexOAT"],
+            20: ["0boete", "tracksuitz"],
+            21: ["SLManu", "Draco_2010"],
+            22: ["LiveLucYT", "jannick421"],
+            23: ["Too0God", "PamerDKing"],
+            24: ["InvormativTV", "Loxxgamer"],
+            25: ["Valle0311", "MikaDKing"],
+            26: ["Naayrii", "MCKrediii"],
+            27: ["MegaMeteor87", "MegaMeteor88"],
+            28: ["MitDerNacht", "yujiSW"],
+            29: ["deadston3", "EinM4nu"],
+            30: ["hkbuddyy", "MRANDRU12"],
+            31: ["Tempest1204", "Rage064"],
+            32: ["MegaMeteor89", "einJonas65"],
+            33: ["DieEnte1455", "Benowitch"],
+            34: ["Nusse2011", "dxrkr0x"],
+            35: ["EnteOnCrack", "Alpha_demil_47"],
+            36: ["Somberlyy", "nurnoco"],
+            37: ["kkeqqa", "JzSnoxy"],
+            38: ["Swaxi5", "Jasko5"],
+            39: ["UncleCreepin", "CuzImCreephim"],
+            40: ["Schneeander", "OscarrinoTV"],
+            41: ["Hushtrail", "KaiserOxy66"],
+            42: ["Freddy_Kohlbein", "Brigitte420"],
+            43: ["Lxk4z", "Snowfeather25"],
+            44: ["Zane_69", "StarkillerBW"],
+            45: ["DestenyLP", "CxEy7456"],
+            46: ["4357k", "Nintendo97533"],
+            47: ["PluureX", "Jan0schi"],
+            48: ["Aka_220", "Rayan_Bgrr80x"],
+            49: ["Clayten", "Sakurayy"],
+            50: ["yukiime", "Jasko5_Twitchtv"],
+            51: ["zphynix", "Tense12378"],
+            52: ["Das_Streberchen", "bignose_00"],
+            53: ["legiSimon", "CorgiWelpe"],
+            54: ["xJuro", "HamudiIdumah"],
+            55: ["jxgen", "OvertPrinter"],
+            56: ["UsingDawn33", "Osckar"],
+            57: ["Jobo2803", "Nineon1703"],
+            58: ["OhitsEstelle", "mavegoat"],
+            59: ["zMareke", "Limit_Los"]
+        };
+        
+        const container = document.getElementById('teamsContainer');
+        
+        for (const [teamNumber, players] of Object.entries(teams)) {
+            const teamCard = document.createElement('div');
+            teamCard.className = 'team-card';
+            
+            const teamHeader = document.createElement('div');
+            teamHeader.className = 'team-header';
+            
+            const teamNumberElement = document.createElement('div');
+            teamNumberElement.className = 'team-number';
+            teamNumberElement.textContent = teamNumber;
+            
+            const teamTitle = document.createElement('div');
+            teamTitle.className = 'team-title';
+            teamTitle.textContent = `Team ${teamNumber}`;
+            
+            teamHeader.appendChild(teamNumberElement);
+            teamHeader.appendChild(teamTitle);
+            
+            const playersList = document.createElement('div');
+            playersList.className = 'players-list';
+            
+            players.forEach(player => {
+                const playerElement = document.createElement('div');
+                playerElement.className = 'player';
+                
+                const playerIcon = document.createElement('div');
+                playerIcon.className = 'player-icon';
+                playerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${player}/32')`;
+                
+                const playerName = document.createElement('div');
+                playerName.className = 'player-name';
+                playerName.textContent = player;
+                
+                playerElement.appendChild(playerIcon);
+                playerElement.appendChild(playerName);
+                playersList.appendChild(playerElement);
+            });
+            
+            teamCard.appendChild(teamHeader);
+            teamCard.appendChild(playersList);
+            container.appendChild(teamCard);
+        }
+    </script>
+</body>
+</html>
