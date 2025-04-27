@@ -13,6 +13,8 @@
             --text-secondary: #b0b0b0;
             --eliminated: #f44336;
             --eliminated-bg: rgba(244, 67, 54, 0.1);
+            --solo-survivor: #ff9800;
+            --solo-bg: rgba(255, 152, 0, 0.1);
         }
         
         body {
@@ -34,6 +36,13 @@
             color: var(--accent);
             margin-bottom: 5px;
             font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: var(--accent);
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
         }
         
         .subtitle {
@@ -75,8 +84,17 @@
             background-color: var(--eliminated-bg);
         }
         
+        .team-card.solo-survivor {
+            border-left-color: var(--solo-survivor);
+            background-color: var(--solo-bg);
+        }
+        
         .team-card.eliminated .team-number {
             background-color: var(--eliminated);
+        }
+        
+        .team-card.solo-survivor .team-number {
+            background-color: var(--solo-survivor);
         }
         
         .team-card.eliminated::after {
@@ -85,6 +103,19 @@
             top: 10px;
             right: 10px;
             background-color: var(--eliminated);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .team-card.solo-survivor::after {
+            content: "SOLO-ÜBERLEBENDE(R)";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--solo-survivor);
             color: white;
             padding: 3px 8px;
             border-radius: 4px;
@@ -141,6 +172,14 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
         
+        .player.eliminated {
+            opacity: 0.6;
+        }
+        
+        .player.eliminated .player-name {
+            text-decoration: line-through;
+        }
+        
         .player-icon {
             width: 32px;
             height: 32px;
@@ -158,13 +197,31 @@
             flex-grow: 1;
         }
         
-        .eliminated .player-name {
-            text-decoration: line-through;
-            opacity: 0.8;
+        .solo-survivors-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            background-color: rgba(255, 152, 0, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 3px solid var(--solo-survivor);
+        }
+        
+        .solo-survivors-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .solo-survivor-card {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
         }
         
         @media (max-width: 768px) {
-            .teams-container {
+            .teams-container, .solo-survivors-list {
                 grid-template-columns: 1fr;
             }
             
@@ -183,6 +240,13 @@
     
     <div class="teams-container" id="teamsContainer">
         <!-- Teams werden hier eingefügt -->
+    </div>
+    
+    <div id="soloSurvivorsContainer" class="solo-survivors-container" style="display: none;">
+        <h2>Solo-Überlebende</h2>
+        <div class="solo-survivors-list" id="soloSurvivorsList">
+            <!-- Solo-Überlebende werden hier eingefügt -->
+        </div>
     </div>
     
     <script>
@@ -248,16 +312,41 @@
             59: ["zMareke", "Limit_Los"]
         };
         
-        const eliminatedTeams = [3, 4]; // Teams die ausgeschieden sind
+        // Spieler die ausgeschieden sind (Teamnummer: [Spielerindex])
+        const eliminatedPlayers = {
+            3: [0],  // Team 3, OhitsDevoo ist tot (Index 0)
+            4: [1],  // Team 4, MrChocolxte ist tot (Index 1)
+            7: [0, 1],  // Team 7, Finnsel_Bimmsel und FynnK14 sind tot (Index 0 und 1)
+            17: [1]  // Team 17, EisteeMan ist tot (Index 1)
+        };
         
         const container = document.getElementById('teamsContainer');
+        const soloContainer = document.getElementById('soloSurvivorsContainer');
+        const soloList = document.getElementById('soloSurvivorsList');
+        
+        let soloSurvivors = [];
         
         for (const [teamNumber, players] of Object.entries(teams)) {
+            const teamNum = Number(teamNumber);
+            const isEliminatedTeam = eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].length === players.length;
+            const isSoloSurvivor = eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].length === players.length - 1;
+            
             const teamCard = document.createElement('div');
             teamCard.className = 'team-card';
             
-            if (eliminatedTeams.includes(Number(teamNumber))) {
+            if (isEliminatedTeam) {
                 teamCard.classList.add('eliminated');
+            } else if (isSoloSurvivor) {
+                teamCard.classList.add('solo-survivor');
+                
+                // Finde den überlebenden Spieler
+                const survivorIndex = players.findIndex((_, index) => !eliminatedPlayers[teamNum].includes(index));
+                const survivor = players[survivorIndex];
+                
+                soloSurvivors.push({
+                    team: teamNum,
+                    name: survivor
+                });
             }
             
             const teamHeader = document.createElement('div');
@@ -277,11 +366,11 @@
             const playersList = document.createElement('div');
             playersList.className = 'players-list';
             
-            players.forEach(player => {
+            players.forEach((player, index) => {
                 const playerElement = document.createElement('div');
                 playerElement.className = 'player';
                 
-                if (eliminatedTeams.includes(Number(teamNumber))) {
+                if (eliminatedPlayers[teamNum] && eliminatedPlayers[teamNum].includes(index)) {
                     playerElement.classList.add('eliminated');
                 }
                 
@@ -301,6 +390,28 @@
             teamCard.appendChild(teamHeader);
             teamCard.appendChild(playersList);
             container.appendChild(teamCard);
+        }
+        
+        // Zeige Solo-Überlebende an, falls vorhanden
+        if (soloSurvivors.length > 0) {
+            soloContainer.style.display = 'block';
+            
+            soloSurvivors.forEach(survivor => {
+                const survivorCard = document.createElement('div');
+                survivorCard.className = 'solo-survivor-card';
+                
+                const playerIcon = document.createElement('div');
+                playerIcon.className = 'player-icon';
+                playerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${survivor.name}/32')`;
+                
+                const playerInfo = document.createElement('div');
+                playerInfo.style.marginLeft = '10px';
+                playerInfo.innerHTML = `<strong>${survivor.name}</strong><br>Team ${survivor.team}`;
+                
+                survivorCard.appendChild(playerIcon);
+                survivorCard.appendChild(playerInfo);
+                soloList.appendChild(survivorCard);
+            });
         }
     </script>
 </body>
