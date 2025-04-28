@@ -5,6 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OneWeekVaro - Teams & Stats</title>
     <style>
+        /* Füge diese CSS-Regeln hinzu */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        .kills-list {
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .kills-list div {
+            margin: 3px 0;
+            padding: 3px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+
+        /* Rest des bestehenden CSS bleibt gleich */
         :root {
             --bg-dark: #121212;
             --bg-card: #1e1e1e;
@@ -378,7 +431,6 @@
             "[19:33:57] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: OhitsEstelle was slain by Osckar",
             "[19:35:05] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: mavegoat was slain by Osckar",
             "[19:51:23] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: legiSimon was slain by MegaMeteor89",
-            "[19:54:44] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: PTC_YT was slain by OhitsDevoo",
             "[19:55:15] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Nikk54 was slain by MitDerNacht",
             "[19:58:50] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: Tim_Kreativbro was slain by MegaMeteor89",
             "[20:02:45] [Server thread/INFO]: [OneWeekVaro] [VARO] [DEATH] Message: HamudiIdumah was slain by tracksuitz",
@@ -396,6 +448,7 @@
         // Initialisierung
         let eliminatedPlayers = {};
         let killStats = {};
+        let playerKills = {}; // Speichert die Opfer jedes Spielers
 
         // Finde Team und Index eines Spielers
         function findPlayer(playerName) {
@@ -413,26 +466,36 @@
             deathLogs.forEach(log => {
                 const deathMessage = log.match(/\[DEATH\] Message: (.+)/)[1];
                 let deadPlayer, killer;
+                let deathType = "getötet";
 
                 // Extrahiere Toten und Killer basierend auf Todesart
                 if (deathMessage.includes("was slain by")) {
                     [deadPlayer, killer] = deathMessage.split(" was slain by ");
+                    deathType = "getötet";
                 } else if (deathMessage.includes("was shot by")) {
                     [deadPlayer, killer] = deathMessage.split(" was shot by ");
+                    deathType = "erschossen";
                 } else if (deathMessage.includes("was doomed to fall by")) {
                     [deadPlayer, killer] = deathMessage.split(" was doomed to fall by ");
+                    deathType = "in den Tod gestoßen";
                 } else if (deathMessage.includes("died")) {
                     deadPlayer = deathMessage.split(" died")[0];
+                    deathType = "gestorben";
                 } else if (deathMessage.includes("hit the ground too hard while trying to escape")) {
                     [deadPlayer, killer] = deathMessage.split(" hit the ground too hard while trying to escape ");
+                    deathType = "in den Tod geflüchtet vor";
                 } else if (deathMessage.includes("tried to swim in lava to escape")) {
                     [deadPlayer, killer] = deathMessage.split(" tried to swim in lava to escape ");
+                    deathType = "in Lava geflüchtet vor";
                 } else if (deathMessage.includes("fell from a high place")) {
                     deadPlayer = deathMessage.split(" fell from a high place")[0];
+                    deathType = "gestürzt";
                 } else if (deathMessage.includes("was burned to a crisp while fighting")) {
                     [deadPlayer, killer] = deathMessage.split(" was burned to a crisp while fighting ");
+                    deathType = "verbrannt im Kampf mit";
                 } else if (deathMessage.includes("drowned while trying to escape")) {
                     [deadPlayer, killer] = deathMessage.split(" drowned while trying to escape ");
+                    deathType = "ertrunken auf der Flucht vor";
                 }
 
                 // Markiere Spieler als tot
@@ -448,9 +511,19 @@
                     }
                 }
 
-                // Zähle Kill
+                // Zähle Kill und speichere Opfer
                 if (killer) {
                     killStats[killer] = (killStats[killer] || 0) + 1;
+                    
+                    if (!playerKills[killer]) {
+                        playerKills[killer] = [];
+                    }
+                    
+                    // Füge das Opfer mit Todesart hinzu
+                    playerKills[killer].push({
+                        player: deadPlayer,
+                        type: deathType
+                    });
                 }
             });
         }
@@ -523,8 +596,32 @@
                     playerIcon.style.backgroundImage = `url('https://mc-heads.net/avatar/${player}/32')`;
                     
                     const playerName = document.createElement('div');
-                    playerName.className = 'player-name';
+                    playerName.className = 'player-name tooltip';
                     playerName.textContent = player;
+                    
+                    // Füge Tooltip mit Kill-Informationen hinzu
+                    if (playerKills[player] && playerKills[player].length > 0) {
+                        const tooltip = document.createElement('span');
+                        tooltip.className = 'tooltiptext';
+                        
+                        const tooltipTitle = document.createElement('div');
+                        tooltipTitle.textContent = `Kills (${playerKills[player].length}):`;
+                        tooltipTitle.style.fontWeight = 'bold';
+                        tooltipTitle.style.marginBottom = '5px';
+                        
+                        const killsList = document.createElement('div');
+                        killsList.className = 'kills-list';
+                        
+                        playerKills[player].forEach(kill => {
+                            const killEntry = document.createElement('div');
+                            killEntry.textContent = `${kill.player} (${kill.type})`;
+                            killsList.appendChild(killEntry);
+                        });
+                        
+                        tooltip.appendChild(tooltipTitle);
+                        tooltip.appendChild(killsList);
+                        playerName.appendChild(tooltip);
+                    }
                     
                     playerInfo.appendChild(playerIcon);
                     playerInfo.appendChild(playerName);
@@ -556,7 +653,7 @@
             
             killers.forEach(([player, kills]) => {
                 const card = document.createElement('div');
-                card.className = 'killer-card';
+                card.className = 'killer-card tooltip';
                 
                 card.innerHTML = `
                     <div class="player-icon" style="background-image: url('https://mc-heads.net/avatar/${player}/32')"></div>
@@ -565,6 +662,30 @@
                         ${kills} Kills
                     </div>
                 `;
+                
+                // Füge Tooltip für Top-Killer hinzu
+                if (playerKills[player] && playerKills[player].length > 0) {
+                    const tooltip = document.createElement('span');
+                    tooltip.className = 'tooltiptext';
+                    
+                    const tooltipTitle = document.createElement('div');
+                    tooltipTitle.textContent = `Kills (${playerKills[player].length}):`;
+                    tooltipTitle.style.fontWeight = 'bold';
+                    tooltipTitle.style.marginBottom = '5px';
+                    
+                    const killsList = document.createElement('div');
+                    killsList.className = 'kills-list';
+                    
+                    playerKills[player].forEach(kill => {
+                        const killEntry = document.createElement('div');
+                        killEntry.textContent = `${kill.player} (${kill.type})`;
+                        killsList.appendChild(killEntry);
+                    });
+                    
+                    tooltip.appendChild(tooltipTitle);
+                    tooltip.appendChild(killsList);
+                    card.appendChild(tooltip);
+                }
                 
                 container.appendChild(card);
             });
