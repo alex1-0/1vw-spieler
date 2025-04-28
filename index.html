@@ -517,7 +517,7 @@
                 // Extrahiere Toten und Killer basierend auf Todesart
                 if (deathMessage.includes("left the confines of this world")) {
                     deadPlayer = deathMessage.split(" left the confines of this world")[0];
-                    deathType = "verlassen";
+                    deathType = "Border";
                 } else if (deathMessage.includes("drowned")) {
                     deadPlayer = deathMessage.split(" drowned")[0];
                     deathType = "ertrunken";
@@ -535,25 +535,25 @@
                     deathType = "erschossen";
                 } else if (deathMessage.includes("was doomed to fall by")) {
                     [deadPlayer, killer] = deathMessage.split(" was doomed to fall by ");
-                    deathType = "in den Tod gestoßen";
+                    deathType = "Fallschaden";
                 } else if (deathMessage.includes("died")) {
                     deadPlayer = deathMessage.split(" died")[0];
                     deathType = "gestorben";
                 } else if (deathMessage.includes("hit the ground too hard while trying to escape")) {
                     [deadPlayer, killer] = deathMessage.split(" hit the ground too hard while trying to escape ");
-                    deathType = "in den Tod geflüchtet vor";
+                    deathType = "Fallschaden während Flüchten";
                 } else if (deathMessage.includes("tried to swim in lava to escape")) {
                     [deadPlayer, killer] = deathMessage.split(" tried to swim in lava to escape ");
-                    deathType = "in Lava geflüchtet vor";
+                    deathType = "Lavaschaden während Flüchten";
                 } else if (deathMessage.includes("fell from a high place")) {
                     deadPlayer = deathMessage.split(" fell from a high place")[0];
-                    deathType = "gestürzt";
+                    deathType = "Fallschaden";
                 } else if (deathMessage.includes("was burned to a crisp while fighting")) {
                     [deadPlayer, killer] = deathMessage.split(" was burned to a crisp while fighting ");
-                    deathType = "verbrannt im Kampf mit";
+                    deathType = "verbrannt";
                 } else if (deathMessage.includes("drowned while trying to escape")) {
                     [deadPlayer, killer] = deathMessage.split(" drowned while trying to escape ");
-                    deathType = "ertrunken auf der Flucht vor";
+                    deathType = "ertrunken während Flüchten";
                 }
 
                 // Markiere Spieler als tot
