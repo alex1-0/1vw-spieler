@@ -525,54 +525,84 @@
             });
             
             deathLogs.forEach(log => {
-                const deathMessage = log.match(/\[DEATH\] Message: (.+)/)[1];
+                const deathMatch = log.match(/\[DEATH\] Message: (.+)/);
+                if (!deathMatch) return;
+                
+                const deathMessage = deathMatch[1];
                 let deadPlayer, killer;
-                let deathType = "getötet";
-
+                let deathType = "gestorben";
+        
                 // Extrahiere Toten und Killer basierend auf Todesart
-                if (deathMessage.includes("left the confines of this world")) {
-                    deadPlayer = deathMessage.split(" left the confines of this world")[0];
-                    deathType = "Border";
-                } else if (deathMessage.includes("drowned")) {
-                    deadPlayer = deathMessage.split(" drowned")[0];
-                    deathType = "ertrunken";
-                } else if (deathMessage.includes("tried to swim in lava")) {
-                    deadPlayer = deathMessage.split(" tried to swim in lava")[0];
-                    deathType = "in Lava ertrunken";
-                } else if (deathMessage.includes("burned to death")) {
-                    deadPlayer = deathMessage.split(" burned to death")[0];
-                    deathType = "verbrannt";
-                } else if (deathMessage.includes("was slain by")) {
+                if (deathMessage.includes("was slain by")) {
                     [deadPlayer, killer] = deathMessage.split(" was slain by ");
                     deathType = "getötet";
-                } else if (deathMessage.includes("was shot by")) {
+                } 
+                else if (deathMessage.includes("was shot by")) {
                     [deadPlayer, killer] = deathMessage.split(" was shot by ");
                     deathType = "erschossen";
-                } else if (deathMessage.includes("was doomed to fall by")) {
-                    [deadPlayer, killer] = deathMessage.split(" was doomed to fall by ");
-                    deathType = "Fallschaden";
-                } else if (deathMessage.includes("died")) {
-                    deadPlayer = deathMessage.split(" died")[0];
-                    deathType = "gestorben";
-                } else if (deathMessage.includes("hit the ground too hard while trying to escape")) {
-                    [deadPlayer, killer] = deathMessage.split(" hit the ground too hard while trying to escape ");
-                    deathType = "Fallschaden während Flüchten";
-                } else if (deathMessage.includes("tried to swim in lava to escape")) {
+                }
+                else if (deathMessage.match(/was (pummeled|stabbed|burned|stung) to death by/)) {
+                    [deadPlayer, killer] = deathMessage.split(/ was (?:pummeled|stabbed|burned|stung) to death by /);
+                    deathType = "getötet";
+                }
+                else if (deathMessage.includes("tried to swim in lava to escape")) {
                     [deadPlayer, killer] = deathMessage.split(" tried to swim in lava to escape ");
-                    deathType = "Lavaschaden während Flüchten";
-                } else if (deathMessage.includes("fell from a high place")) {
+                    deathType = "Lavaschaden (Flucht)";
+                }
+                else if (deathMessage.includes("was burned to a crisp while fighting")) {
+                    [deadPlayer, killer] = deathMessage.split(" was burned to a crisp while fighting ");
+                    deathType = "verbrannt (im Kampf)";
+                }
+                else if (deathMessage.includes("tried to swim in lava")) {
+                    deadPlayer = deathMessage.split(" tried to swim in lava")[0];
+                    deathType = "in Lava ertrunken";
+                }
+                else if (deathMessage.includes("drowned while trying to escape")) {
+                    [deadPlayer, killer] = deathMessage.split(" drowned while trying to escape ");
+                    deathType = "ertrunken (Flucht)";
+                }
+                else if (deathMessage.includes("drowned")) {
+                    deadPlayer = deathMessage.split(" drowned")[0];
+                    deathType = "ertrunken";
+                }
+                else if (deathMessage.includes("hit the ground too hard")) {
+                    if (deathMessage.includes("while trying to escape")) {
+                        [deadPlayer, killer] = deathMessage.split(" hit the ground too hard while trying to escape ");
+                        deathType = "Fallschaden (Flucht)";
+                    } else {
+                        deadPlayer = deathMessage.split(" hit the ground too hard")[0];
+                        deathType = "Fallschaden";
+                    }
+                }
+                else if (deathMessage.includes("fell from a high place")) {
                     deadPlayer = deathMessage.split(" fell from a high place")[0];
                     deathType = "Fallschaden";
-                } else if (deathMessage.includes("was burned to a crisp while fighting")) {
-                    [deadPlayer, killer] = deathMessage.split(" was burned to a crisp while fighting ");
-                    deathType = "verbrannt";
-                } else if (deathMessage.includes("drowned while trying to escape")) {
-                    [deadPlayer, killer] = deathMessage.split(" drowned while trying to escape ");
-                    deathType = "ertrunken während Flüchten";
-                } else if (deathMessage.includes("tried to swim in lava to escape")) {
-                    [deadPlayer, killer] = deathMessage.split(" tried to swim in lava to escape ");
-                    deathType = "Lavaschaden während Flüchten";
                 }
+                else if (deathMessage.includes("left the confines of this world")) {
+                    deadPlayer = deathMessage.split(" left the confines of this world")[0];
+                    deathType = "Border";
+                }
+                else if (deathMessage.includes("fell out of the world")) {
+                    deadPlayer = deathMessage.split(" fell out of the world")[0];
+                    deathType = "aus der Welt gefallen";
+                }
+                else if (deathMessage.includes("starved to death")) {
+                    deadPlayer = deathMessage.split(" starved to death")[0];
+                    deathType = "verhungert";
+                }
+                else if (deathMessage.includes("withered away")) {
+                    deadPlayer = deathMessage.split(" withered away")[0];
+                    deathType = "verwelkt";
+                }
+                else if (deathMessage.includes("was killed by magic")) {
+                    deadPlayer = deathMessage.split(" was killed by magic")[0];
+                    deathType = "Magie";
+                }
+                else if (deathMessage.includes("died")) {
+                    deadPlayer = deathMessage.split(" died")[0];
+                    deathType = "gestorben";
+                }
+
 
                 // Markiere Spieler als tot
                 if (deadPlayer) {
