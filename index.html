@@ -569,6 +569,9 @@
                 } else if (deathMessage.includes("drowned while trying to escape")) {
                     [deadPlayer, killer] = deathMessage.split(" drowned while trying to escape ");
                     deathType = "ertrunken während Flüchten";
+                } else if (deathMessage.includes("tried to swim in lava to escape")) {
+                    [deadPlayer, killer] = deathMessage.split(" tried to swim in lava to escape ");
+                    deathType = "Lavaschaden während Flüchten";
                 }
 
                 // Markiere Spieler als tot
