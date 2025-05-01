@@ -522,143 +522,141 @@
             return null;
         }
 
-        // Verarbeite die Todeslogs
-        function processDeathLogs() {
-            notJoinedPlayers.forEach(playerName => {
-                // Finde den tatsächlichen Spielernamen aus den Teams
-                const actualPlayerName = Object.values(teams).flat()
-                    .find(p => p.toLowerCase() === playerName.toLowerCase());
-                
-                if (actualPlayerName) {
-                    const playerInfo = findPlayer(actualPlayerName);
-                    if (playerInfo) {
-                        if (!eliminatedPlayers[playerInfo.team]) {
-                            eliminatedPlayers[playerInfo.team] = [];
-                        }
-                        if (!eliminatedPlayers[playerInfo.team].includes(playerInfo.index)) {
-                            eliminatedPlayers[playerInfo.team].push(playerInfo.index);
-                        }
-                    }
-                }
-            });
+        // Verarbeite die function processDeathLogs() {
+        notJoinedPlayers.forEach(playerName => {
+            // Finde den tatsächlichen Spielernamen aus den Teams
+            const actualPlayerName = Object.values(teams).flat()
+                .find(p => p.toLowerCase() === playerName.toLowerCase());
             
-            deathLogs.forEach(log => {
-                const deathMatch = log.match(/\[DEATH\] Message: (.+)/);
-                if (!deathMatch) return;
-                
-                const deathMessage = deathMatch[1];
-                let deadPlayer, killer;
-                let deathType = "gestorben";
-        
-                // Extrahiere Toten und Killer basierend auf Todesart
-                if (deathMessage.includes("was slain by")) {
-                    [deadPlayer, killer] = deathMessage.split(" was slain by ");
-                    deathType = "getötet";
-                } 
-                else if (deathMessage.includes("was shot by")) {
-                    [deadPlayer, killer] = deathMessage.split(" was shot by ");
-                    deathType = "erschossen";
-                }
-                else if (deathMessage.match(/was (pummeled|stabbed|burned|stung) to death by/)) {
-                    [deadPlayer, killer] = deathMessage.split(/ was (?:pummeled|stabbed|burned|stung) to death by /);
-                    deathType = "getötet";
-                }
-                else if (deathMessage.includes("tried to swim in lava to escape")) {
-                    [deadPlayer, killer] = deathMessage.split(" tried to swim in lava to escape ");
-                    deathType = "Lavaschaden (Flucht)";
-                }
-                else if (deathMessage.includes("was burned to a crisp while fighting")) {
-                    [deadPlayer, killer] = deathMessage.split(" was burned to a crisp while fighting ");
-                    deathType = "verbrannt (im Kampf)";
-                }
-                else if (deathMessage.includes("tried to swim in lava")) {
-                    deadPlayer = deathMessage.split(" tried to swim in lava")[0];
-                    deathType = "in Lava ertrunken";
-                }
-                else if (deathMessage.includes("drowned while trying to escape")) {
-                    [deadPlayer, killer] = deathMessage.split(" drowned while trying to escape ");
-                    deathType = "ertrunken (Flucht)";
-                }
-                else if (deathMessage.includes("drowned")) {
-                    deadPlayer = deathMessage.split(" drowned")[0];
-                    deathType = "ertrunken";
-                }
-                else if (deathMessage.includes("hit the ground too hard")) {
-                    if (deathMessage.includes("while trying to escape")) {
-                        [deadPlayer, killer] = deathMessage.split(" hit the ground too hard while trying to escape ");
-                        deathType = "Fallschaden (Flucht)";
-                    } else {
-                        deadPlayer = deathMessage.split(" hit the ground too hard")[0];
-                        deathType = "Fallschaden";
+            if (actualPlayerName) {
+                const playerInfo = findPlayer(actualPlayerName);
+                if (playerInfo) {
+                    if (!eliminatedPlayers[playerInfo.team]) {
+                        eliminatedPlayers[playerInfo.team] = [];
+                    }
+                    if (!eliminatedPlayers[playerInfo.team].includes(playerInfo.index)) {
+                        eliminatedPlayers[playerInfo.team].push(playerInfo.index);
                     }
                 }
-                else if (deathMessage.includes("fell from a high place")) {
-                    deadPlayer = deathMessage.split(" fell from a high place")[0];
+            }
+        });
+        
+        deathLogs.forEach(log => {
+            // Anpassung: Entferne die strikte Überprüfung des Präfix
+            const deathMatch = log.match(/(?:\[OneWeekVaro\] )?\[VARO\] \[DEATH\] Message: (.+)/);
+            if (!deathMatch) return;
+            
+            const deathMessage = deathMatch[1];
+            let deadPlayer, killer;
+            let deathType = "gestorben";
+            
+            // Extrahiere Toten und Killer basierend auf Todesart
+            if (deathMessage.includes("was slain by")) {
+                [deadPlayer, killer] = deathMessage.split(" was slain by ");
+                deathType = "getötet";
+            } 
+            else if (deathMessage.includes("was shot by")) {
+                [deadPlayer, killer] = deathMessage.split(" was shot by ");
+                deathType = "erschossen";
+            }
+            else if (deathMessage.match(/was (pummeled|stabbed|burned|stung) to death by/)) {
+                [deadPlayer, killer] = deathMessage.split(/ was (?:pummeled|stabbed|burned|stung) to death by /);
+                deathType = "getötet";
+            }
+            else if (deathMessage.includes("tried to swim in lava to escape")) {
+                [deadPlayer, killer] = deathMessage.split(" tried to swim in lava to escape ");
+                deathType = "Lavaschaden (Flucht)";
+            }
+            else if (deathMessage.includes("was burned to a crisp while fighting")) {
+                [deadPlayer, killer] = deathMessage.split(" was burned to a crisp while fighting ");
+                deathType = "verbrannt (im Kampf)";
+            }
+            else if (deathMessage.includes("tried to swim in lava")) {
+                deadPlayer = deathMessage.split(" tried to swim in lava")[0];
+                deathType = "in Lava ertrunken";
+            }
+            else if (deathMessage.includes("drowned while trying to escape")) {
+                [deadPlayer, killer] = deathMessage.split(" drowned while trying to escape ");
+                deathType = "ertrunken (Flucht)";
+            }
+            else if (deathMessage.includes("drowned")) {
+                deadPlayer = deathMessage.split(" drowned")[0];
+                deathType = "ertrunken";
+            }
+            else if (deathMessage.includes("hit the ground too hard")) {
+                if (deathMessage.includes("while trying to escape")) {
+                    [deadPlayer, killer] = deathMessage.split(" hit the ground too hard while trying to escape ");
+                    deathType = "Fallschaden (Flucht)";
+                } else {
+                    deadPlayer = deathMessage.split(" hit the ground too hard")[0];
                     deathType = "Fallschaden";
                 }
-                else if (deathMessage.includes("left the confines of this world")) {
-                    deadPlayer = deathMessage.split(" left the confines of this world")[0];
-                    deathType = "Border";
-                }
-                else if (deathMessage.includes("fell out of the world")) {
-                    deadPlayer = deathMessage.split(" fell out of the world")[0];
-                    deathType = "aus der Welt gefallen";
-                }
-                else if (deathMessage.includes("starved to death")) {
-                    deadPlayer = deathMessage.split(" starved to death")[0];
-                    deathType = "verhungert";
-                }
-                else if (deathMessage.includes("withered away")) {
-                    deadPlayer = deathMessage.split(" withered away")[0];
-                    deathType = "verwelkt";
-                }
-                else if (deathMessage.includes("was killed by magic")) {
-                    deadPlayer = deathMessage.split(" was killed by magic")[0];
-                    deathType = "Magie";
-                }
-                else if (deathMessage.includes("died")) {
-                    deadPlayer = deathMessage.split(" died")[0];
-                    deathType = "gestorben";
-                }
-
-
-                // Markiere Spieler als tot
-                if (deadPlayer) {
-                    const playerInfo = findPlayer(deadPlayer);
-                    if (playerInfo) {
-                        if (!eliminatedPlayers[playerInfo.team]) {
-                            eliminatedPlayers[playerInfo.team] = [];
-                        }
-                        if (!eliminatedPlayers[playerInfo.team].includes(playerInfo.index)) {
-                            eliminatedPlayers[playerInfo.team].push(playerInfo.index);
-                        }
+            }
+            else if (deathMessage.includes("fell from a high place")) {
+                deadPlayer = deathMessage.split(" fell from a high place")[0];
+                deathType = "Fallschaden";
+            }
+            else if (deathMessage.includes("left the confines of this world")) {
+                deadPlayer = deathMessage.split(" left the confines of this world")[0];
+                deathType = "Border";
+            }
+            else if (deathMessage.includes("fell out of the world")) {
+                deadPlayer = deathMessage.split(" fell out of the world")[0];
+                deathType = "aus der Welt gefallen";
+            }
+            else if (deathMessage.includes("starved to death")) {
+                deadPlayer = deathMessage.split(" starved to death")[0];
+                deathType = "verhungert";
+            }
+            else if (deathMessage.includes("withered away")) {
+                deadPlayer = deathMessage.split(" withered away")[0];
+                deathType = "verwelkt";
+            }
+            else if (deathMessage.includes("was killed by magic")) {
+                deadPlayer = deathMessage.split(" was killed by magic")[0];
+                deathType = "Magie";
+            }
+            else if (deathMessage.includes("died")) {
+                deadPlayer = deathMessage.split(" died")[0];
+                deathType = "gestorben";
+            }
+    
+            // Markiere Spieler als tot
+            if (deadPlayer) {
+                const playerInfo = findPlayer(deadPlayer);
+                if (playerInfo) {
+                    if (!eliminatedPlayers[playerInfo.team]) {
+                        eliminatedPlayers[playerInfo.team] = [];
+                    }
+                    if (!eliminatedPlayers[playerInfo.team].includes(playerInfo.index)) {
+                        eliminatedPlayers[playerInfo.team].push(playerInfo.index);
                     }
                 }
-
-                // Zähle Kill und speichere Opfer
-// In der processDeathLogs Funktion, wo Kills gezählt werden:
-                if (killer) {
-                    // Finde den originalen Spielernamen für den Killer
-                    const actualKiller = Object.values(teams).flat()
-                        .find(p => p.toLowerCase() === killer.toLowerCase()) || killer;
-                    
-                    killStats[actualKiller] = (killStats[actualKiller] || 0) + 1;
-                    
-                    if (!playerKills[actualKiller]) {
-                        playerKills[actualKiller] = [];
-                    }
-                    
-                    // Finde den originalen Spielernamen für das Opfer
-                    const actualDeadPlayer = Object.values(teams).flat()
-                        .find(p => p.toLowerCase() === deadPlayer.toLowerCase()) || deadPlayer;
-                    
-                    playerKills[actualKiller].push({
-                        player: actualDeadPlayer,
-                        type: deathType
-                    });
+            }
+    
+            // Zähle Kill und speichere Opfer
+            if (killer) {
+                // Finde den originalen Spielernamen für den Killer
+                const actualKiller = Object.values(teams).flat()
+                    .find(p => p.toLowerCase() === killer.toLowerCase()) || killer;
+                
+                killStats[actualKiller] = (killStats[actualKiller] || 0) + 1;
+                
+                if (!playerKills[actualKiller]) {
+                    playerKills[actualKiller] = [];
                 }
-            });
-        }
+                
+                // Finde den originalen Spielernamen für das Opfer
+                const actualDeadPlayer = Object.values(teams).flat()
+                    .find(p => p.toLowerCase() === deadPlayer.toLowerCase()) || deadPlayer;
+                
+                playerKills[actualKiller].push({
+                    player: actualDeadPlayer,
+                    type: deathType
+                });
+            }
+        });
+    }
 
         // Berechne Statistiken
         function calculateStats() {
