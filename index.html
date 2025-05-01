@@ -504,8 +504,9 @@
 
         // Finde Team und Index eines Spielers
         function findPlayer(playerName) {
+            const lowerName = playerName.toLowerCase();
             for (const [teamNum, players] of Object.entries(teams)) {
-                const index = players.indexOf(playerName);
+                const index = players.findIndex(p => p.toLowerCase() === lowerName);
                 if (index !== -1) {
                     return { team: parseInt(teamNum), index };
                 }
@@ -516,13 +517,19 @@
         // Verarbeite die Todeslogs
         function processDeathLogs() {
             notJoinedPlayers.forEach(playerName => {
-                const playerInfo = findPlayer(playerName);
-                if (playerInfo) {
-                    if (!eliminatedPlayers[playerInfo.team]) {
-                        eliminatedPlayers[playerInfo.team] = [];
-                    }
-                    if (!eliminatedPlayers[playerInfo.team].includes(playerInfo.index)) {
-                        eliminatedPlayers[playerInfo.team].push(playerInfo.index);
+                // Finde den tatsächlichen Spielernamen aus den Teams
+                const actualPlayerName = Object.values(teams).flat()
+                    .find(p => p.toLowerCase() === playerName.toLowerCase());
+                
+                if (actualPlayerName) {
+                    const playerInfo = findPlayer(actualPlayerName);
+                    if (playerInfo) {
+                        if (!eliminatedPlayers[playerInfo.team]) {
+                            eliminatedPlayers[playerInfo.team] = [];
+                        }
+                        if (!eliminatedPlayers[playerInfo.team].includes(playerInfo.index)) {
+                            eliminatedPlayers[playerInfo.team].push(playerInfo.index);
+                        }
                     }
                 }
             });
@@ -621,16 +628,24 @@
                 }
 
                 // Zähle Kill und speichere Opfer
+// In der processDeathLogs Funktion, wo Kills gezählt werden:
                 if (killer) {
-                    killStats[killer] = (killStats[killer] || 0) + 1;
+                    // Finde den originalen Spielernamen für den Killer
+                    const actualKiller = Object.values(teams).flat()
+                        .find(p => p.toLowerCase() === killer.toLowerCase()) || killer;
                     
-                    if (!playerKills[killer]) {
-                        playerKills[killer] = [];
+                    killStats[actualKiller] = (killStats[actualKiller] || 0) + 1;
+                    
+                    if (!playerKills[actualKiller]) {
+                        playerKills[actualKiller] = [];
                     }
                     
-                    // Füge das Opfer mit Todesart hinzu
-                    playerKills[killer].push({
-                        player: deadPlayer,
+                    // Finde den originalen Spielernamen für das Opfer
+                    const actualDeadPlayer = Object.values(teams).flat()
+                        .find(p => p.toLowerCase() === deadPlayer.toLowerCase()) || deadPlayer;
+                    
+                    playerKills[actualKiller].push({
+                        player: actualDeadPlayer,
                         type: deathType
                     });
                 }
