@@ -663,26 +663,6 @@
             });
         }
 
-        const allPlayers = Object.values(teams).flat();
-
-        const deadPlayers = [];
-        
-        for (const teamNumber in teams) {
-            const team = teams[teamNumber];
-            const eliminated = eliminatedPlayers[teamNumber] || [];
-            
-            eliminated.forEach(index => {
-                deadPlayers.push(team[index]);
-            });
-        }
-        
-        const alivePlayers = allPlayers.filter(p => !deadPlayers.includes(p));
-        
-        console.log("Tot:", deadPlayers.length);
-        console.log("Lebendig:", alivePlayers.length);
-        console.log("Alive players:", alivePlayers);
-
-
         // Berechne Statistiken
         function calculateStats() {
             const totalPlayers = Object.values(teams).reduce((sum, team) => sum + team.length, 0);
@@ -694,6 +674,12 @@
                 const deadPlayers = eliminatedPlayers[teamNum] ? eliminatedPlayers[teamNum].length : 0;
                 return deadPlayers < players.length ? count + 1 : count;
             }, 0);
+
+            console.log("totalPlayers:", totalPlayers);
+            console.log("deadPlayers:", deadPlayers);
+            console.log("activeTeams:", activeTeams);
+            console.log("deadCount:", deadCount);
+            console.log("aliveCount:", aliveCount);
 
             return { totalPlayers, aliveCount, deadCount, activeTeams };
         }
