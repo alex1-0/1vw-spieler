@@ -620,7 +620,10 @@
                     deadPlayer = deathMessage.split(" died")[0];
                     deathType = "gestorben";
                 }
-
+                else if (deathMessage.includes("was doomed to fall by")) {
+                    [deadPlayer, killer] = deathMessage.split(" was doomed to fall by ");
+                    deathType = "Fallschaden (Kampf)";
+                }
 
                 // Markiere Spieler als tot
                 if (deadPlayer) {
