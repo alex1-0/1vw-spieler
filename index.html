@@ -484,6 +484,7 @@
             "[VARO] [DEATH] Message: praczy died",
             "[VARO] [DEATH] Message: OvertPrinter died"
         ];
+        console.log(deathLogs.length)
 
         const notJoinedPlayers = [
             "CuzImCreepin",
@@ -504,6 +505,7 @@
             "PhilTimeTV",
             "Omega_King21"
         ];
+        console.log(notJoinedPlayers.length)
         
         // Initialisierung
         let eliminatedPlayers = {};
@@ -674,11 +676,6 @@
                 const deadPlayers = eliminatedPlayers[teamNum] ? eliminatedPlayers[teamNum].length : 0;
                 return deadPlayers < players.length ? count + 1 : count;
             }, 0);
-
-            console.log("totalPlayers:", totalPlayers);
-            console.log("activeTeams:", activeTeams);
-            console.log("deadCount:", deadCount);
-            console.log("aliveCount:", aliveCount);
 
             return { totalPlayers, aliveCount, deadCount, activeTeams };
         }
