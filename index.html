@@ -663,6 +663,22 @@
             });
         }
 
+        // Liste aller Spielernamen
+        const allPlayers = Object.values(teams).flat();
+        
+        // Spieler, die als tot gelten
+        const deadPlayers = allPlayers.filter(player => {
+            const playerInfo = findPlayer(player);
+            return playerInfo && eliminatedPlayers[playerInfo.team]?.includes(playerInfo.index);
+        });
+        
+        // Vergleich
+        const alivePlayers = allPlayers.filter(p => !deadPlayers.includes(p));
+        
+        console.log("Spieler laut Webseite als lebendig:", alivePlayers.length);
+        console.log("Diese Spieler gelten aktuell als lebendig:", alivePlayers);
+
+
         // Berechne Statistiken
         function calculateStats() {
             const totalPlayers = Object.values(teams).reduce((sum, team) => sum + team.length, 0);
